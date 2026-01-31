@@ -292,11 +292,52 @@
         40% { transform: scale(1); opacity: 1; }
       }
 
+      /* Welcome / Landing State */
+      .welcome-state .chat {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .welcome-state .messages {
+        display: none;
+      }
+
+      .welcome-state .composer {
+        border-top: none;
+        background: transparent;
+        width: 100%;
+        max-width: 540px;
+      }
+
+      .welcome-greeting {
+        text-align: center;
+        margin-bottom: 24px;
+        padding: 0 20px;
+      }
+
+      .welcome-greeting h2 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+        color: var(--ink);
+      }
+
+      .chat-state .welcome-greeting {
+        display: none;
+      }
+
+      .chat-state .composer {
+        max-width: none;
+      }
+
       /* Composer */
       .composer {
         border-top: 1px solid rgba(66, 66, 66, 0.25);
         padding: 10px;
         background: rgba(255, 255, 250, 0.98);
+        transition: all 0.3s ease;
       }
 
       .composerForm {
@@ -420,16 +461,12 @@
         </header>
       </div>
 
-      <div class="wrap panel" role="application" aria-label="Chat panel">
+      <div class="wrap panel welcome-state" id="panel" role="application" aria-label="Chat panel">
         <main class="chat" id="chat" aria-label="Conversation">
-          <div class="messages" id="messages">
-            <div class="row assistant">
-              <div>
-                <div class="bubble">Hello! I'm your mortgage pricing assistant. Ask me anything about mortgages — I can provide scenario pricing, program details, and more.</div>
-                <div class="meta">Assistant</div>
-              </div>
-            </div>
+          <div class="welcome-greeting" id="welcomeGreeting">
+            <h2>Hello, I'm your Mortgage Assistant.</h2>
           </div>
+          <div class="messages" id="messages"></div>
         </main>
 
         <footer class="composer" aria-label="Message composer">
@@ -438,7 +475,7 @@
               id="prompt"
               class="prompt"
               rows="1"
-              placeholder="Type a message..."
+              placeholder="Ask me anything about your current or a new mortgage..."
               aria-label="Message input"
             ></textarea>
 
@@ -467,8 +504,18 @@
       const sendBtn = document.getElementById("sendBtn");
       const statusDot = document.getElementById("statusDot");
       const statusText = document.getElementById("statusText");
+      const panelEl = document.getElementById("panel");
 
       let conversationHistory = [];
+      let chatStarted = false;
+
+      const startChat = () => {
+        if (chatStarted) return;
+        chatStarted = true;
+        panelEl.classList.remove('welcome-state');
+        panelEl.classList.add('chat-state');
+        promptEl.placeholder = "Type a message...";
+      };
 
       const autoGrow = (el) => {
         el.style.height = "0px";
@@ -608,6 +655,7 @@
       };
 
       const sendMessage = async (text) => {
+        startChat();
         addMessage("user", text);
         conversationHistory.push({ role: 'user', content: text });
 
