@@ -3,396 +3,478 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>g1brokerAgent</title>
+    <title>G1 Agent - Mortgage Assistant</title>
 
-    <!-- Font -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 
     <style>
       :root {
-        --bg: #fffffa;
-        --ink: #000000;
-        --border: #424242;
-        --user: #424242;
-
-        --radius-xl: 22px;
-        --radius-lg: 18px;
-        --radius-md: 14px;
-
-        --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        --shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.06);
-
-        --content-max: 860px;
-        --gutter: 14px;
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #F9FAFB;
+        --bg-user: #2E3440;
+        --bg-assistant: #F5F5F5;
+        --text-primary: #111827;
+        --text-secondary: #6B7280;
+        --text-inverse: #FFFFFF;
+        --border: #E5E7EB;
+        --accent: #3B82F6;
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+        --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-full: 9999px;
       }
 
       * {
         box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
 
-      html,
-      body {
+      html, body {
         height: 100%;
       }
 
       body {
-        margin: 0;
-        font-family: "Noto Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-        font-size: 12px;
-        color: var(--ink);
-        background: var(--bg);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 14px;
+        color: var(--text-primary);
+        background: var(--bg-primary);
+        line-height: 1.5;
       }
 
-      /* App Shell */
+      /* App Layout */
       .app {
-        min-height: 100dvh;
+        height: 100dvh;
         display: flex;
         flex-direction: column;
-        padding: calc(env(safe-area-inset-top) + 10px) var(--gutter)
-          calc(env(safe-area-inset-bottom) + 12px);
-        gap: 12px;
       }
 
-      .wrap {
-        width: 100%;
-        max-width: var(--content-max);
-        margin: 0 auto;
-      }
-
-      /* Top bar */
-      .topbar {
+      /* Header */
+      .header {
+        height: 48px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 10px;
-        padding: 10px 12px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
-        background: rgba(255, 255, 250, 0.85);
-        backdrop-filter: blur(10px);
-        box-shadow: var(--shadow-soft);
+        padding: 0 16px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-primary);
+        flex-shrink: 0;
       }
 
-      .brand {
-        display: flex;
-        align-items: center;
-        min-width: 0;
+      .logo {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
       }
 
-      .brand h1 {
-        font-size: 12px;
-        letter-spacing: 0.5px;
-        margin: 0;
-        font-weight: 600;
-        white-space: nowrap;
+      .header-right {
+        font-size: 11px;
+        color: var(--text-secondary);
+        letter-spacing: 0.02em;
       }
 
-      .powered-by {
-        font-size: 10px;
-        color: rgba(0, 0, 0, 0.55);
-        letter-spacing: 0.3px;
-      }
-
-      /* Chat panel */
-      .panel {
+      /* Main Chat Area */
+      .main {
         flex: 1;
         display: flex;
         flex-direction: column;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
-        background: rgba(255, 255, 250, 0.92);
-        box-shadow: var(--shadow);
         overflow: hidden;
+        background: var(--bg-primary);
       }
 
-      .chat {
+      .chat-container {
         flex: 1;
-        overflow: auto;
-        padding: 14px;
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
+        overflow-y: auto;
+        padding: 24px 16px;
       }
 
+      .chat-inner {
+        max-width: 768px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      /* Welcome State */
+      .welcome {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+        padding: 32px 16px;
+        text-align: center;
+      }
+
+      .welcome-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-md);
+      }
+
+      .welcome-icon svg {
+        width: 28px;
+        height: 28px;
+        color: white;
+      }
+
+      .welcome-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        line-height: 1.2;
+      }
+
+      .welcome-subtitle {
+        font-size: 15px;
+        color: var(--text-secondary);
+        margin-bottom: 32px;
+      }
+
+      /* Quick Action Cards */
+      .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .quick-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .quick-card:hover {
+        border-color: var(--accent);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+      }
+
+      .quick-card-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--bg-secondary);
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+        color: var(--text-secondary);
+      }
+
+      .quick-card-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-primary);
+        line-height: 1.4;
+      }
+
+      /* Messages */
       .messages {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 24px;
       }
 
-      /* Message rows */
-      .row {
+      .message {
         display: flex;
-        gap: 10px;
-        align-items: flex-end;
+        gap: 12px;
+        animation: fadeIn 0.3s ease;
       }
 
-      .row.user {
-        justify-content: flex-end;
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
       }
 
-      .row.assistant {
-        justify-content: flex-start;
+      .message.user {
+        flex-direction: row-reverse;
       }
 
-      /* Bubbles */
-      .bubble {
-        max-width: min(640px, 84%);
+      .message-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .message.assistant .message-avatar {
+        background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+        color: white;
+      }
+
+      .message.user .message-avatar {
+        display: none;
+      }
+
+      .message-content {
+        max-width: 85%;
+        min-width: 0;
+      }
+
+      .message-bubble {
+        padding: 12px 16px;
         border-radius: var(--radius-lg);
-        padding: 10px 12px;
-        border: 1px solid var(--border);
-        line-height: 1.5;
-        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
-        white-space: pre-wrap;
-        word-break: break-word;
+        line-height: 1.6;
+        box-shadow: var(--shadow-sm);
       }
 
-      .row.user .bubble {
-        background: var(--user);
-        color: var(--bg);
-        border-color: var(--border);
-        border-top-right-radius: 10px;
+      .message.user .message-bubble {
+        background: var(--bg-user);
+        color: var(--text-inverse);
+        border-bottom-right-radius: 4px;
       }
 
-      .row.assistant .bubble {
-        background: var(--bg);
-        color: var(--ink);
-        border-color: var(--border);
-        border-top-left-radius: 10px;
+      .message.assistant .message-bubble {
+        background: var(--bg-assistant);
+        color: var(--text-primary);
+        border-bottom-left-radius: 4px;
       }
 
-      .meta {
-        font-size: 10px;
-        opacity: 0.72;
-        padding: 0 2px;
-        user-select: none;
-      }
-
-      .row.user .meta {
-        text-align: right;
-      }
-
-      /* Formatted content in bubbles */
-      .bubble h3, .bubble h4 {
+      /* Formatted content in assistant bubbles */
+      .message-bubble h3, .message-bubble h4 {
         margin: 0 0 8px 0;
         font-weight: 600;
       }
-      .bubble h3 { font-size: 14px; }
-      .bubble h4 { font-size: 13px; }
+      .message-bubble h3 { font-size: 15px; }
+      .message-bubble h4 { font-size: 14px; }
 
-      .bubble p {
+      .message-bubble p {
         margin: 0 0 8px 0;
       }
-      .bubble p:last-child {
+      .message-bubble p:last-child {
         margin-bottom: 0;
       }
 
-      .bubble ul {
+      .message-bubble ul {
         margin: 8px 0;
-        padding-left: 18px;
+        padding-left: 20px;
       }
-      .bubble li {
+      .message-bubble li {
         margin: 4px 0;
       }
 
-      .bubble table {
+      .message-bubble table {
         width: 100%;
         border-collapse: collapse;
-        margin: 10px 0;
-        font-size: 11px;
+        margin: 12px 0;
+        font-size: 13px;
       }
-      .bubble th, .bubble td {
+      .message-bubble th, .message-bubble td {
         border: 1px solid var(--border);
-        padding: 6px 8px;
+        padding: 8px 10px;
         text-align: left;
       }
-      .bubble th {
-        background: rgba(66, 66, 66, 0.08);
+      .message-bubble th {
+        background: rgba(0, 0, 0, 0.04);
         font-weight: 600;
       }
-      .bubble tr:nth-child(even) td {
-        background: rgba(66, 66, 66, 0.03);
+      .message-bubble tr:nth-child(even) td {
+        background: rgba(0, 0, 0, 0.02);
       }
 
-      .bubble strong {
+      .message-bubble strong {
         font-weight: 600;
       }
 
       /* Thinking indicator */
-      .thinking {
+      .thinking-dots {
         display: flex;
         gap: 4px;
-        padding: 8px 12px;
+        padding: 4px 0;
       }
 
-      .thinking span {
-        width: 6px;
-        height: 6px;
-        background: var(--border);
+      .thinking-dots span {
+        width: 8px;
+        height: 8px;
+        background: var(--text-secondary);
         border-radius: 50%;
         animation: bounce 1.4s infinite ease-in-out;
       }
 
-      .thinking span:nth-child(1) { animation-delay: 0s; }
-      .thinking span:nth-child(2) { animation-delay: 0.2s; }
-      .thinking span:nth-child(3) { animation-delay: 0.4s; }
+      .thinking-dots span:nth-child(1) { animation-delay: 0s; }
+      .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+      .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
 
       @keyframes bounce {
-        0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+        0%, 80%, 100% { transform: scale(0.8); opacity: 0.4; }
         40% { transform: scale(1); opacity: 1; }
       }
 
-      /* Welcome / Landing State */
-      .welcome-state .chat {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .welcome-state .messages {
-        display: none;
-      }
-
-      .welcome-state .composer {
-        border-top: none;
-        background: transparent;
-        width: 100%;
-        max-width: 540px;
-      }
-
-      .welcome-greeting {
-        text-align: center;
-        margin-bottom: 24px;
-        padding: 0 20px;
-      }
-
-      .welcome-greeting h2 {
-        font-size: 20px;
-        font-weight: 600;
-        margin: 0;
-        color: var(--ink);
-      }
-
-      .chat-state .welcome-greeting {
-        display: none;
-      }
-
-      .chat-state .composer {
-        max-width: none;
-      }
-
-      /* Composer */
+      /* Input Area */
       .composer {
-        border-top: 1px solid rgba(66, 66, 66, 0.25);
-        padding: 10px;
-        background: rgba(255, 255, 250, 0.98);
-        transition: all 0.3s ease;
+        padding: 16px;
+        background: var(--bg-primary);
+        border-top: 1px solid var(--border);
       }
 
-      .composerForm {
+      .composer-inner {
+        max-width: 768px;
+        margin: 0 auto;
+      }
+
+      .input-wrapper {
         display: flex;
         align-items: flex-end;
-        gap: 10px;
+        gap: 8px;
+        background: var(--bg-secondary);
         border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
-        padding: 10px 10px;
-        background: var(--bg);
+        border-radius: var(--radius-lg);
+        padding: 8px 8px 8px 12px;
+        transition: border-color 0.2s, box-shadow 0.2s;
       }
 
-      .prompt {
-        flex: 1;
-        resize: none;
+      .input-wrapper:focus-within {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .attach-btn {
+        width: 36px;
+        height: 36px;
         border: none;
-        outline: none;
         background: transparent;
-        color: var(--ink);
-        font-family: inherit;
-        font-size: 12px;
-        line-height: 1.35;
-        min-height: 18px;
-        max-height: 160px;
-        overflow: auto;
-        padding: 0;
-        margin: 0;
-      }
-
-      .prompt::placeholder {
-        color: rgba(0, 0, 0, 0.55);
-      }
-
-      .send {
-        flex: 0 0 auto;
-        width: 40px;
-        height: 40px;
-        border-radius: 14px;
-        border: 1px solid var(--border);
-        background: var(--bg);
-        color: var(--ink);
+        color: var(--text-secondary);
         cursor: pointer;
-        display: grid;
-        place-items: center;
-        transition: transform 120ms ease, box-shadow 120ms ease;
-        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s, color 0.2s;
+        flex-shrink: 0;
       }
 
-      .send:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+      .attach-btn:hover {
+        background: var(--border);
+        color: var(--text-primary);
       }
 
-      .send:active {
-        transform: translateY(0px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+      .input-field {
+        flex: 1;
+        border: none;
+        background: transparent;
+        resize: none;
+        outline: none;
+        font-family: inherit;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--text-primary);
+        min-height: 24px;
+        max-height: 160px;
+        padding: 6px 0;
       }
 
-      .send[disabled] {
-        opacity: 0.45;
+      .input-field::placeholder {
+        color: var(--text-secondary);
+      }
+
+      .send-btn {
+        width: 36px;
+        height: 36px;
+        border: none;
+        background: var(--text-primary);
+        color: white;
+        cursor: pointer;
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.15s, opacity 0.15s;
+        flex-shrink: 0;
+      }
+
+      .send-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .send-btn:active {
+        transform: scale(0.95);
+      }
+
+      .send-btn:disabled {
+        opacity: 0.4;
         cursor: not-allowed;
         transform: none;
-        box-shadow: none;
       }
 
-      .hint {
-        margin-top: 8px;
+      .send-btn svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      /* Hide welcome when chat starts */
+      .chat-started .welcome {
+        display: none;
+      }
+
+      .chat-started .messages {
         display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        opacity: 0.7;
-        font-size: 10px;
-        user-select: none;
       }
 
-      .kbd {
-        border: 1px solid rgba(66, 66, 66, 0.55);
-        border-bottom-width: 2px;
-        padding: 1px 6px;
-        border-radius: 8px;
-        background: rgba(255, 255, 250, 0.7);
+      /* Initial state */
+      .messages {
+        display: none;
       }
 
-      /* Mobile polish */
-      @media (max-width: 520px) {
-        :root {
-          --gutter: 10px;
+      /* Responsive */
+      @media (max-width: 640px) {
+        .chat-container {
+          padding: 16px 12px;
         }
-        .chat {
+
+        .welcome-title {
+          font-size: 24px;
+        }
+
+        .quick-actions {
+          grid-template-columns: 1fr;
+          max-width: 100%;
+        }
+
+        .quick-card {
+          min-height: 80px;
+        }
+
+        .message-content {
+          max-width: 90%;
+        }
+
+        .composer {
           padding: 12px;
-        }
-        .bubble {
-          max-width: 88%;
         }
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .chat {
-          scroll-behavior: auto;
-        }
-        .send {
+        .message, .quick-card {
+          animation: none;
           transition: none;
         }
       }
@@ -400,89 +482,158 @@
   </head>
 
   <body>
-    <div class="app">
-      <div class="wrap">
-        <header class="topbar" aria-label="Header">
-          <div class="brand">
-            <h1>⌂ G1 AGENT</h1>
+    <div class="app" id="app">
+      <!-- Header -->
+      <header class="header">
+        <div class="logo">AGENT G1</div>
+        <div class="header-right">Powered by PMF</div>
+      </header>
+
+      <!-- Main Chat Area -->
+      <main class="main">
+        <div class="chat-container" id="chatContainer">
+          <div class="chat-inner">
+            <!-- Welcome State -->
+            <div class="welcome" id="welcome">
+              <div class="welcome-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+              </div>
+              <h1 class="welcome-title" id="welcomeTitle">Let's find your perfect rate.</h1>
+              <p class="welcome-subtitle">Your AI-powered mortgage assistant</p>
+
+              <div class="quick-actions">
+                <button class="quick-card" data-prompt="Help me understand if I qualify for a mortgage">
+                  <div class="quick-card-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                  </div>
+                  <span class="quick-card-title">Help me qualify</span>
+                </button>
+
+                <button class="quick-card" data-prompt="I'd like to get a rate quote for a home purchase">
+                  <div class="quick-card-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="1" x2="12" y2="23"></line>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                  </div>
+                  <span class="quick-card-title">Get a rate quote</span>
+                </button>
+
+                <button class="quick-card" data-prompt="What are current mortgage rates today?">
+                  <div class="quick-card-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                      <polyline points="16 7 22 7 22 13"></polyline>
+                    </svg>
+                  </div>
+                  <span class="quick-card-title">Today's rates</span>
+                </button>
+
+                <button class="quick-card" data-prompt="I want to refinance my current mortgage">
+                  <div class="quick-card-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                    </svg>
+                  </div>
+                  <span class="quick-card-title">Refinance options</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="messages" id="messages"></div>
           </div>
+        </div>
 
-          <div class="powered-by">
-            Powered by PMF
+        <!-- Input Area -->
+        <div class="composer">
+          <div class="composer-inner">
+            <form class="input-wrapper" id="inputForm" autocomplete="off">
+              <button type="button" class="attach-btn" aria-label="Attach file">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+
+              <textarea
+                id="inputField"
+                class="input-field"
+                rows="1"
+                placeholder="Ask me anything about your mortgage..."
+                aria-label="Message input"
+              ></textarea>
+
+              <button type="submit" class="send-btn" id="sendBtn" disabled aria-label="Send message">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+            </form>
           </div>
-        </header>
-      </div>
-
-      <div class="wrap panel welcome-state" id="panel" role="application" aria-label="Chat panel">
-        <main class="chat" id="chat" aria-label="Conversation">
-          <div class="welcome-greeting" id="welcomeGreeting">
-            <h2>Hello, I'm your Mortgage Assistant.</h2>
-          </div>
-          <div class="messages" id="messages"></div>
-        </main>
-
-        <footer class="composer" aria-label="Message composer">
-          <form class="composerForm" id="composerForm" autocomplete="off">
-            <textarea
-              id="prompt"
-              class="prompt"
-              rows="1"
-              placeholder="Ask me anything about your current or a new mortgage..."
-              aria-label="Message input"
-            ></textarea>
-
-            <button id="sendBtn" class="send" type="submit" aria-label="Send message" disabled>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M5 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </form>
-
-          <div class="hint" aria-hidden="true">
-            <span><span class="kbd">Enter</span> send</span>
-            <span><span class="kbd">Shift</span> + <span class="kbd">Enter</span> new line</span>
-          </div>
-        </footer>
-      </div>
+        </div>
+      </main>
     </div>
 
     <script>
       const PROXY_URL = '/api/chat';
-      const messagesEl = document.getElementById("messages");
-      const chatEl = document.getElementById("chat");
-      const formEl = document.getElementById("composerForm");
-      const promptEl = document.getElementById("prompt");
-      const sendBtn = document.getElementById("sendBtn");
-      const panelEl = document.getElementById("panel");
+      const app = document.getElementById('app');
+      const messagesEl = document.getElementById('messages');
+      const chatContainer = document.getElementById('chatContainer');
+      const inputForm = document.getElementById('inputForm');
+      const inputField = document.getElementById('inputField');
+      const sendBtn = document.getElementById('sendBtn');
+      const welcomeTitle = document.getElementById('welcomeTitle');
+      const quickCards = document.querySelectorAll('.quick-card');
 
       let conversationHistory = [];
       let chatStarted = false;
 
-      const startChat = () => {
-        if (chatStarted) return;
-        chatStarted = true;
-        panelEl.classList.remove('welcome-state');
-        panelEl.classList.add('chat-state');
-        promptEl.placeholder = "Type a message...";
-      };
+      // Rotating welcome greetings
+      const greetings = [
+        "Let's find your perfect rate.",
+        "Ready to unlock your dream home?",
+        "Your mortgage journey starts here.",
+        "Let's make homeownership happen.",
+        "What can I help you with today?",
+        "Let's explore your options together.",
+        "Ready to save on your mortgage?",
+        "Your path to homeownership awaits."
+      ];
 
+      // Set random greeting on load
+      welcomeTitle.textContent = greetings[Math.floor(Math.random() * greetings.length)];
+
+      // Auto-grow textarea
       const autoGrow = (el) => {
-        el.style.height = "0px";
-        const next = Math.min(el.scrollHeight, 160);
-        el.style.height = next + "px";
-        el.style.overflowY = el.scrollHeight > 160 ? "auto" : "hidden";
+        el.style.height = '24px';
+        el.style.height = Math.min(el.scrollHeight, 160) + 'px';
       };
 
-      const setSendEnabled = (enabled) => {
-        const hasText = promptEl.value.trim().length > 0;
-        sendBtn.disabled = !hasText || !enabled;
+      const updateSendBtn = () => {
+        sendBtn.disabled = !inputField.value.trim();
       };
 
       const scrollToBottom = () => {
-        chatEl.scrollTop = chatEl.scrollHeight;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
       };
 
+      const startChat = () => {
+        if (chatStarted) return;
+        chatStarted = true;
+        app.classList.add('chat-started');
+      };
+
+      // Escape HTML for security
       const escapeHtml = (str) =>
         str
           .replace(/&/g, "&amp;")
@@ -491,6 +642,7 @@
           .replace(/"/g, "&quot;")
           .replace(/'/g, "&#039;");
 
+      // Convert markdown tables
       const convertMarkdownTables = (text) => {
         const tableRegex = /\|(.+)\|\n\|[-|\s]+\|\n((?:\|.+\|\n?)+)/g;
 
@@ -517,6 +669,7 @@
         });
       };
 
+      // Format assistant response (markdown to HTML)
       const formatResponse = (text) => {
         if (!text) return 'No response received';
 
@@ -532,7 +685,7 @@
         // Convert *italic* to <em>
         formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
 
-        // Convert markdown tables to HTML (need to unescape for table parsing)
+        // Convert markdown tables
         formatted = convertMarkdownTables(formatted.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'));
 
         // Convert bullet points
@@ -543,7 +696,6 @@
         formatted = formatted.replace(/\n\n/g, '</p><p>');
         formatted = formatted.replace(/\n/g, '<br>');
 
-        // Wrap in paragraph if not already structured
         if (!formatted.startsWith('<')) {
           formatted = '<p>' + formatted + '</p>';
         }
@@ -551,66 +703,78 @@
         return formatted;
       };
 
+      // Add message to chat
       const addMessage = (role, text) => {
-        // Remove thinking indicator if present
-        const thinking = document.getElementById('thinkingRow');
-        if (thinking) thinking.remove();
+        const thinkingEl = document.getElementById('thinkingMessage');
+        if (thinkingEl) thinkingEl.remove();
 
-        const row = document.createElement("div");
-        row.className = `row ${role}`;
+        const message = document.createElement('div');
+        message.className = `message ${role}`;
 
-        const outer = document.createElement("div");
-        const bubble = document.createElement("div");
-        bubble.className = "bubble";
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        if (role === 'assistant') {
+          avatar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>';
+        }
 
-        // Format assistant responses, escape user input
-        if (role === "assistant") {
+        const content = document.createElement('div');
+        content.className = 'message-content';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+
+        if (role === 'assistant') {
           bubble.innerHTML = formatResponse(text);
         } else {
           bubble.textContent = text;
         }
 
-        const meta = document.createElement("div");
-        meta.className = "meta";
-        meta.textContent = role === "user" ? "You" : "Assistant";
-
-        outer.appendChild(bubble);
-        outer.appendChild(meta);
-        row.appendChild(outer);
-        messagesEl.appendChild(row);
+        content.appendChild(bubble);
+        message.appendChild(avatar);
+        message.appendChild(content);
+        messagesEl.appendChild(message);
 
         scrollToBottom();
       };
 
+      // Show thinking indicator
       const showThinking = () => {
-        const row = document.createElement("div");
-        row.className = "row assistant";
-        row.id = "thinkingRow";
+        const message = document.createElement('div');
+        message.className = 'message assistant';
+        message.id = 'thinkingMessage';
 
-        const outer = document.createElement("div");
-        const bubble = document.createElement("div");
-        bubble.className = "bubble thinking";
-        bubble.innerHTML = '<span></span><span></span><span></span>';
+        const avatar = document.createElement('div');
+        avatar.className = 'message-avatar';
+        avatar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>';
 
-        outer.appendChild(bubble);
-        row.appendChild(outer);
-        messagesEl.appendChild(row);
+        const content = document.createElement('div');
+        content.className = 'message-content';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        bubble.innerHTML = '<div class="thinking-dots"><span></span><span></span><span></span></div>';
+
+        content.appendChild(bubble);
+        message.appendChild(avatar);
+        message.appendChild(content);
+        messagesEl.appendChild(message);
 
         scrollToBottom();
       };
 
+      // Send message to API
       const sendMessage = async (text) => {
         startChat();
-        addMessage("user", text);
+        addMessage('user', text);
         conversationHistory.push({ role: 'user', content: text });
 
         showThinking();
-        setSendEnabled(false);
+        sendBtn.disabled = true;
 
         try {
           const res = await fetch(PROXY_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               message: text,
               conversationHistory: conversationHistory,
@@ -619,49 +783,64 @@
             }),
           });
 
-          if (!res.ok) throw new Error("Request failed");
+          if (!res.ok) throw new Error('Request failed');
 
           const data = await res.json();
           const responseText = data.response || data.message || JSON.stringify(data);
 
           conversationHistory.push({ role: 'assistant', content: responseText });
-          addMessage("assistant", responseText);
+          addMessage('assistant', responseText);
 
         } catch (err) {
-          addMessage("assistant", "Sorry, something went wrong. Please try again.");
+          addMessage('assistant', 'Sorry, something went wrong. Please try again.');
         }
 
-        setSendEnabled(true);
-        promptEl.focus();
+        updateSendBtn();
+        inputField.focus();
       };
 
-      promptEl.addEventListener("input", () => {
-        autoGrow(promptEl);
-        setSendEnabled(true);
+      // Event listeners
+      inputField.addEventListener('input', () => {
+        autoGrow(inputField);
+        updateSendBtn();
       });
 
-      promptEl.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
+      inputField.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
-          if (!sendBtn.disabled) formEl.requestSubmit();
+          if (!sendBtn.disabled) inputForm.requestSubmit();
         }
       });
 
-      formEl.addEventListener("submit", async (e) => {
+      inputForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const text = promptEl.value.trim();
+        const text = inputField.value.trim();
         if (!text) return;
 
-        promptEl.value = "";
-        autoGrow(promptEl);
-        setSendEnabled(false);
+        inputField.value = '';
+        autoGrow(inputField);
+        updateSendBtn();
 
-        await sendMessage(text);
+        sendMessage(text);
+      });
+
+      // Quick action cards
+      quickCards.forEach(card => {
+        card.addEventListener('click', () => {
+          const prompt = card.dataset.prompt;
+          if (prompt) {
+            inputField.value = prompt;
+            autoGrow(inputField);
+            updateSendBtn();
+            sendMessage(prompt);
+            inputField.value = '';
+          }
+        });
       });
 
       // Initialize
-      autoGrow(promptEl);
-      setSendEnabled(true);
+      autoGrow(inputField);
+      updateSendBtn();
     </script>
   </body>
 </html>
