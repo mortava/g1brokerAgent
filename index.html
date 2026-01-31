@@ -81,67 +81,21 @@
       .brand {
         display: flex;
         align-items: center;
-        gap: 10px;
         min-width: 0;
-      }
-
-      .mark {
-        width: 12px;
-        height: 12px;
-        border-radius: 4px;
-        border: 1px solid var(--border);
-        background: var(--bg);
-        position: relative;
-        flex: 0 0 auto;
-      }
-
-      .mark::after {
-        content: "";
-        position: absolute;
-        inset: 3px;
-        border-radius: 3px;
-        background: var(--border);
       }
 
       .brand h1 {
         font-size: 12px;
-        letter-spacing: 0.2px;
+        letter-spacing: 0.5px;
         margin: 0;
         font-weight: 600;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
 
-      .status {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 6px 10px;
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        background: var(--bg);
-        line-height: 1;
-        user-select: none;
-      }
-
-      .dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--border);
-        opacity: 0.85;
-        transition: background 0.2s;
-      }
-
-      .dot.active {
-        background: #22c55e;
-        animation: pulse 1.5s infinite;
-      }
-
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
+      .powered-by {
+        font-size: 10px;
+        color: rgba(0, 0, 0, 0.55);
+        letter-spacing: 0.3px;
       }
 
       /* Chat panel */
@@ -450,13 +404,11 @@
       <div class="wrap">
         <header class="topbar" aria-label="Header">
           <div class="brand">
-            <span class="mark" aria-hidden="true"></span>
-            <h1>g1brokerAgent</h1>
+            <h1>⌂ G1 AGENT</h1>
           </div>
 
-          <div class="status" aria-label="Status">
-            <span class="dot" id="statusDot" aria-hidden="true"></span>
-            <span id="statusText">Ready</span>
+          <div class="powered-by">
+            Powered by PMF
           </div>
         </header>
       </div>
@@ -502,8 +454,6 @@
       const formEl = document.getElementById("composerForm");
       const promptEl = document.getElementById("prompt");
       const sendBtn = document.getElementById("sendBtn");
-      const statusDot = document.getElementById("statusDot");
-      const statusText = document.getElementById("statusText");
       const panelEl = document.getElementById("panel");
 
       let conversationHistory = [];
@@ -531,11 +481,6 @@
 
       const scrollToBottom = () => {
         chatEl.scrollTop = chatEl.scrollHeight;
-      };
-
-      const setStatus = (text, active = false) => {
-        statusText.textContent = text;
-        statusDot.classList.toggle('active', active);
       };
 
       const escapeHtml = (str) =>
@@ -660,7 +605,6 @@
         conversationHistory.push({ role: 'user', content: text });
 
         showThinking();
-        setStatus('Thinking...', true);
         setSendEnabled(false);
 
         try {
@@ -687,7 +631,6 @@
           addMessage("assistant", "Sorry, something went wrong. Please try again.");
         }
 
-        setStatus('Ready', false);
         setSendEnabled(true);
         promptEl.focus();
       };
