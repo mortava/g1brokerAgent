@@ -305,28 +305,75 @@
         font-weight: 600;
       }
 
-      /* Thinking indicator */
-      .thinking-dots {
+      /* Thinking Stages */
+      .thinking-stages {
         display: flex;
-        gap: 4px;
+        flex-direction: column;
+        gap: 8px;
         padding: 4px 0;
       }
 
-      .thinking-dots span {
-        width: 8px;
-        height: 8px;
-        background: var(--text-secondary);
-        border-radius: 50%;
-        animation: bounce 1.4s infinite ease-in-out;
+      .thinking-stage {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        background: var(--bg-secondary);
+        border-radius: var(--radius-sm);
+        font-size: 13px;
+        color: var(--text-secondary);
+        opacity: 0;
+        transform: translateX(-8px);
+        animation: stageIn 0.3s ease forwards;
       }
 
-      .thinking-dots span:nth-child(1) { animation-delay: 0s; }
-      .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
-      .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+      @keyframes stageIn {
+        to { opacity: 1; transform: translateX(0); }
+      }
 
-      @keyframes bounce {
-        0%, 80%, 100% { transform: scale(0.8); opacity: 0.4; }
-        40% { transform: scale(1); opacity: 1; }
+      .thinking-stage.active {
+        color: var(--accent);
+        background: rgba(59, 130, 246, 0.08);
+      }
+
+      .thinking-stage.complete {
+        color: #10B981;
+        background: rgba(16, 185, 129, 0.08);
+      }
+
+      .thinking-stage .stage-icon {
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .thinking-stage .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .thinking-stage .check-icon {
+        color: #10B981;
+      }
+
+      .thinking-stage .stage-text {
+        flex: 1;
+        font-weight: 500;
+      }
+
+      .thinking-stage .stage-time {
+        font-size: 11px;
+        opacity: 0.7;
       }
 
       /* Input Area */
@@ -633,14 +680,23 @@
         app.classList.add('chat-started');
       };
 
-      // Escape HTML for security
-      const escapeHtml = (str) =>
-        str
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
+      // Thinking stages configuration
+      const thinkingStages = [
+        { id: 'analyze', text: 'Analyzing your question', delay: 0 },
+        { id: 'search', text: 'Searching program matrices', delay: 600 },
+        { id: 'calculate', text: 'Calculating eligibility', delay: 1500 },
+        { id: 'format', text: 'Preparing response', delay: 2800 }
+      ];
+
+      let stageTimers = [];
+      let stageStartTime = 0;
+      let currentStageIndex = 0;
+      let elapsedInterval = null;
+
+      // Format cell content (handle bold within cells)
+      const formatCellContent = (text) => {
+        return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      };
 
       // Convert markdown tables
       const convertMarkdownTables = (text) => {
@@ -652,7 +708,7 @@
 
           let table = '<table><thead><tr>';
           headers.forEach(h => {
-            table += `<th>${escapeHtml(h)}</th>`;
+            table += `<th>${formatCellContent(h)}</th>`;
           });
           table += '</tr></thead><tbody>';
 
@@ -660,7 +716,7 @@
             const cells = row.split('|').map(c => c.trim()).filter(c => c);
             table += '<tr>';
             cells.forEach(c => {
-              table += `<td>${escapeHtml(c)}</td>`;
+              table += `<td>${formatCellContent(c)}</td>`;
             });
             table += '</tr>';
           });
@@ -673,20 +729,20 @@
       const formatResponse = (text) => {
         if (!text) return 'No response received';
 
-        let formatted = escapeHtml(text);
+        let formatted = text;
+
+        // Convert markdown tables first (before other processing)
+        formatted = convertMarkdownTables(formatted);
 
         // Convert markdown headers
         formatted = formatted.replace(/^### (.*$)/gm, '<h4>$1</h4>');
         formatted = formatted.replace(/^## (.*$)/gm, '<h3>$1</h3>');
 
-        // Convert **bold** to <strong>
+        // Convert **bold** to <strong> (outside of tables)
         formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
         // Convert *italic* to <em>
         formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-
-        // Convert markdown tables
-        formatted = convertMarkdownTables(formatted.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'));
 
         // Convert bullet points
         formatted = formatted.replace(/^- (.*$)/gm, '<li>$1</li>');
@@ -696,6 +752,7 @@
         formatted = formatted.replace(/\n\n/g, '</p><p>');
         formatted = formatted.replace(/\n/g, '<br>');
 
+        // Wrap in paragraph if not already structured
         if (!formatted.startsWith('<')) {
           formatted = '<p>' + formatted + '</p>';
         }
@@ -706,7 +763,10 @@
       // Add message to chat
       const addMessage = (role, text) => {
         const thinkingEl = document.getElementById('thinkingMessage');
-        if (thinkingEl) thinkingEl.remove();
+        if (thinkingEl) {
+          clearThinkingStages();
+          setTimeout(() => thinkingEl.remove(), 300);
+        }
 
         const message = document.createElement('div');
         message.className = `message ${role}`;
@@ -737,7 +797,7 @@
         scrollToBottom();
       };
 
-      // Show thinking indicator
+      // Show thinking stages
       const showThinking = () => {
         const message = document.createElement('div');
         message.className = 'message assistant';
@@ -752,7 +812,17 @@
 
         const bubble = document.createElement('div');
         bubble.className = 'message-bubble';
-        bubble.innerHTML = '<div class="thinking-dots"><span></span><span></span><span></span></div>';
+
+        let stagesHtml = '<div class="thinking-stages">';
+        thinkingStages.forEach(stage => {
+          stagesHtml += `<div class="thinking-stage" id="stage-${stage.id}" style="display:none;">
+            <div class="stage-icon"><div class="spinner"></div></div>
+            <span class="stage-text">${stage.text}</span>
+            <span class="stage-time" id="time-${stage.id}"></span>
+          </div>`;
+        });
+        stagesHtml += '</div>';
+        bubble.innerHTML = stagesHtml;
 
         content.appendChild(bubble);
         message.appendChild(avatar);
@@ -760,6 +830,65 @@
         messagesEl.appendChild(message);
 
         scrollToBottom();
+        startThinkingStages();
+      };
+
+      const startThinkingStages = () => {
+        stageStartTime = Date.now();
+        currentStageIndex = 0;
+        stageTimers = [];
+
+        // Activate first stage immediately
+        activateStage(0);
+
+        // Schedule subsequent stages
+        stageTimers.push(setTimeout(() => { completeStage(0); activateStage(1); }, 600));
+        stageTimers.push(setTimeout(() => { completeStage(1); activateStage(2); }, 1500));
+        stageTimers.push(setTimeout(() => { completeStage(2); activateStage(3); }, 2800));
+
+        // Update elapsed time
+        elapsedInterval = setInterval(updateElapsedTime, 100);
+      };
+
+      const activateStage = (index) => {
+        if (index >= thinkingStages.length) return;
+        const stage = document.getElementById(`stage-${thinkingStages[index].id}`);
+        if (stage) {
+          stage.style.display = 'flex';
+          stage.style.animationDelay = '0s';
+          stage.className = 'thinking-stage active';
+          currentStageIndex = index;
+          scrollToBottom();
+        }
+      };
+
+      const completeStage = (index) => {
+        const stage = document.getElementById(`stage-${thinkingStages[index].id}`);
+        if (stage) {
+          stage.className = 'thinking-stage complete';
+          stage.querySelector('.stage-icon').innerHTML = '<svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        }
+      };
+
+      const updateElapsedTime = () => {
+        const elapsed = ((Date.now() - stageStartTime) / 1000).toFixed(1);
+        const timeEl = document.getElementById(`time-${thinkingStages[currentStageIndex].id}`);
+        if (timeEl) timeEl.textContent = `${elapsed}s`;
+      };
+
+      const clearThinkingStages = () => {
+        stageTimers.forEach(timer => clearTimeout(timer));
+        stageTimers = [];
+        if (elapsedInterval) {
+          clearInterval(elapsedInterval);
+          elapsedInterval = null;
+        }
+        // Complete all stages before removing
+        thinkingStages.forEach((stage, i) => {
+          completeStage(i);
+          const stageEl = document.getElementById(`stage-${stage.id}`);
+          if (stageEl) stageEl.style.display = 'flex';
+        });
       };
 
       // Send message to API
